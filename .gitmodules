@@ -1,0 +1,3 @@
+[submodule "XCOM-Like/Assets/Scripts/Lib"]
+	path = XCOM-Like/Assets/Scripts/Lib
+	url = https://github.com/oliverjamarie/C_Sharp_Lib.git
