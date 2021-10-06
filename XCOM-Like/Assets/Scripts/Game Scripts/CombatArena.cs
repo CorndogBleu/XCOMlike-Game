@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Library.Graph;
 
 public class CombatArena : Map
 {
@@ -23,6 +24,8 @@ public class CombatArena : Map
     {
         roomType = RoomType.COMBAT_ARENA;
         tiles = new Graph<Tile>();
+
+        
     }
 
     // Update is called once per frame
@@ -34,28 +37,54 @@ public class CombatArena : Map
 
     public override void init(Vector2Int size)
     {
-        // initBoardPreferredAttach(size);
+        initBoardPreferredAttach(size);
+
+        //initOld(size);
     }
 
-    // Initialises board with Preferred Attachment algorithm
+    /// <summary>
+    /// Initialises board using the Preferred Attachment Algorithm
+    /// </summary>
+    /// <param name="size"></param>
     private void initBoardPreferredAttach(Vector2Int size)
     {
         this.boardSize = size;
 
-        board = new Tile[size.x, size.y];
+        tiles.allowSelfConnect = true;
 
-        double rnd = Random.value;
-        Tile prevTile;
-        int rndInt = (int)(Random.value * 10);
+        tiles.insert(emptyTilePrefab);
+        tiles.insert(coverTilePrefab);
+        tiles.insert(concealTilePrefab);
 
-        for (int i = 0; i < 10; i++)
+        tiles.connectNodes(emptyTilePrefab, emptyTilePrefab, 0.5);
+        tiles.connectNodes(emptyTilePrefab, coverTilePrefab, 0.2);
+        tiles.connectNodes(emptyTilePrefab, concealTilePrefab, 0.3);
+
+        tiles.connectNodes(concealTilePrefab, concealTilePrefab, 0.3);
+        tiles.connectNodes(concealTilePrefab, emptyTilePrefab, 0.3);
+        tiles.connectNodes(concealTilePrefab, coverTilePrefab, 0.4);
+
+        tiles.connectNodes(coverTilePrefab, coverTilePrefab, 0.2);
+        tiles.connectNodes(coverTilePrefab, concealTilePrefab, 0.5);
+        tiles.connectNodes(coverTilePrefab, emptyTilePrefab, 0.3);
+
+        Tile curr = emptyTilePrefab.GetComponent<Tile>();
+        Tile emptyTile = emptyTilePrefab.GetComponent<Tile>();
+        Tile coverTile = coverTilePrefab.GetComponent<Tile>();
+        Tile concealTile = concealTilePrefab.GetComponent<Tile>();
+
+        float rnd;
+
+        for (int i = 0; i < boardSize.x; i++)
         {
-            rndInt = (int)(Random.value * 100);
-            print(rndInt);
+            for (int j = 0; j < boardSize.y; j++)
+            {
+                rnd = Random.value;
 
+                
+            }
         }
-
-
+        
     }
 
 
@@ -128,8 +157,6 @@ public class CombatArena : Map
         }
 
     }
-
-
 
     private void OnValidate()
     {
