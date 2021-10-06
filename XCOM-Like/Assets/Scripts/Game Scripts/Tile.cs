@@ -12,6 +12,11 @@ public class Tile : MonoBehaviour
 
     bool walkable;
 
+    /// <summary>
+    /// Used for preferred attachment algorithm
+    /// </summary>
+    public double costToEmptyCell, costToCoverCell, costToConcealCell;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -29,6 +34,9 @@ public class Tile : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Handler for when the mouse hovers over a tile
+    /// </summary>
     protected void OnMouseOver()
     {
         if (renderer == null)
@@ -42,6 +50,10 @@ public class Tile : MonoBehaviour
         
     }
 
+
+    /// <summary>
+    /// Handler for when the mouse no longer hovers over a tile
+    /// </summary>
     protected void OnMouseExit()
     {
         //print("Exit");
