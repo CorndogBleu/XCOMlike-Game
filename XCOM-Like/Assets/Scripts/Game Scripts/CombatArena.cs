@@ -12,20 +12,25 @@ public class CombatArena : Map
     Vector2Int boardSize = new Vector2Int (11,11);
 
     [SerializeField]
-    Tile emptyTilePrefab = default, coverTilePrefab = default, concealTilePrefab = default;
+    Tile emptyTile = default, coverTile = default, concealTile = default;
 
     Tile[,] board;
 
-    Graph<Tile> tiles;
+    Graph<Tile> tileGraph;
+    Graph<Tile> preferredAttach;
+    
 
 
     // Start is called before the first frame update
     void Start()
     {
         roomType = RoomType.COMBAT_ARENA;
-        tiles = new Graph<Tile>();
+        tileGraph = new Graph<Tile>();
+        preferredAttach = new Graph<Tile>();
+        tileGraph.allowSelfConnect = true;
+        preferredAttach.allowSelfConnect = true;
 
-        
+        setupGraphPrefferedAttach();
     }
 
     // Update is called once per frame
@@ -37,125 +42,127 @@ public class CombatArena : Map
 
     public override void init(Vector2Int size)
     {
-        initBoardPreferredAttach(size);
 
-        //initOld(size);
+        Start();
+
+        //initBoardPreferredAttach(size);
+
+        initOld(size);
     }
 
     /// <summary>
     /// Initialises board using the Preferred Attachment Algorithm
     /// </summary>
-    /// <param name="size"></param>
+    /// <param name="size">Dimension of of the board</param>
     private void initBoardPreferredAttach(Vector2Int size)
     {
         this.boardSize = size;
-
-        tiles.allowSelfConnect = true;
-
-        tiles.insert(emptyTilePrefab);
-        tiles.insert(coverTilePrefab);
-        tiles.insert(concealTilePrefab);
-
-        tiles.connectNodes(emptyTilePrefab, emptyTilePrefab, 0.5);
-        tiles.connectNodes(emptyTilePrefab, coverTilePrefab, 0.2);
-        tiles.connectNodes(emptyTilePrefab, concealTilePrefab, 0.3);
-
-        tiles.connectNodes(concealTilePrefab, concealTilePrefab, 0.3);
-        tiles.connectNodes(concealTilePrefab, emptyTilePrefab, 0.3);
-        tiles.connectNodes(concealTilePrefab, coverTilePrefab, 0.4);
-
-        tiles.connectNodes(coverTilePrefab, coverTilePrefab, 0.2);
-        tiles.connectNodes(coverTilePrefab, concealTilePrefab, 0.5);
-        tiles.connectNodes(coverTilePrefab, emptyTilePrefab, 0.3);
-
-        Tile curr = emptyTilePrefab.GetComponent<Tile>();
-        Tile emptyTile = emptyTilePrefab.GetComponent<Tile>();
-        Tile coverTile = coverTilePrefab.GetComponent<Tile>();
-        Tile concealTile = concealTilePrefab.GetComponent<Tile>();
+        board = new Tile[boardSize.x, boardSize.y];
+        
+        Queue<GameObject> tileQueue = new Queue<GameObject>();
 
         float rnd;
+
+        Tile currTile = emptyTile;
 
         for (int i = 0; i < boardSize.x; i++)
         {
             for (int j = 0; j < boardSize.y; j++)
             {
+                tileQueue.Enqueue(currTile.gameObject);
                 rnd = Random.value;
 
-                
+               
             }
         }
+
+        spawnTiles(tileQueue);
         
     }
 
+    /// <summary>
+    /// Creates preferred attachment graph
+    /// </summary>
+    private void setupGraphPrefferedAttach()
+    {
+        preferredAttach.insert(this.emptyTile);
+        preferredAttach.insert(this.coverTile);
+        preferredAttach.insert(this.concealTile);
+
+        preferredAttach.connectNodes(this.emptyTile, this.emptyTile, 0.5);
+        preferredAttach.connectNodes(this.emptyTile, this.coverTile, 0.2);
+        preferredAttach.connectNodes(this.emptyTile, this.concealTile, 0.3);
+
+        preferredAttach.connectNodes(this.concealTile, this.concealTile, 0.3);
+        preferredAttach.connectNodes(this.concealTile, this.emptyTile, 0.3);
+        preferredAttach.connectNodes(this.concealTile, this.coverTile, 0.4);
+
+        preferredAttach.connectNodes(this.coverTile, this.coverTile, 0.2);
+        preferredAttach.connectNodes(this.coverTile, this.concealTile, 0.5);
+        preferredAttach.connectNodes(this.coverTile, this.emptyTile, 0.3);
+    }
 
     private void initOld(Vector2Int size)
     {
         this.boardSize = size;
-
         board = new Tile[size.x, size.y];
+        Queue<GameObject> tiles = new Queue<GameObject>();
+
+        for(int y = 0; y < boardSize.y; y++)
+        {
+            for (int x = 0; x < boardSize.x; x++)
+            {
+                if (Random.value < .33)
+                {
+                    tiles.Enqueue(emptyTile.gameObject);
+                }
+                else if (Random.value < .66)
+                {
+                    tiles.Enqueue(coverTile.gameObject);
+                }
+                else
+                {
+                    tiles.Enqueue(concealTile.gameObject);
+                }
+            }
+        }
+
+        print($"{tiles.Count}");
+
+        spawnTiles(tiles);
         
+    }
+
+    /// <summary>
+    /// Uses a queue of tiles to generate a board of tiles
+    /// </summary>
+    /// <param name="tileQueue">Queue of tiles</param>
+    void spawnTiles(Queue<GameObject> tileQueue)
+    {
         Vector2 offset = new Vector2();
-        offset.x = 0.5f * (size.x - 1);
-        offset.y = 0.5f * (size.y - 1);
+        offset.x = 0.5f * (boardSize.x - 1);
+        offset.y = 0.5f * (boardSize.y - 1);
 
-        for (int y = 0; y < size.y; y++)
+        if (tileQueue.Count != (boardSize.x * boardSize.y))
         {
-            for (int x = 0; x < size.x; x++)
+            throw new System.Exception("Board dimensions do not match queue size");
+        }
+
+        print($"{tileQueue.Count}");
+
+        for (int y = 0; y < boardSize.y; y++)
+        {
+            for (int x = 0; x < boardSize.x; x++)
             {
-                Tile tile = Instantiate(emptyTilePrefab);
-                board[x,y] = tile;
-                tile.transform.SetParent(transform, false);
-                tile.transform.localPosition = new Vector3(x - offset.x, 0f, y - offset.y);
                 
+                GameObject tileGO = Instantiate(tileQueue.Dequeue());
+                Tile tile = tileGO.GetComponent<Tile>();
+                board[x, y] = tile;
+                tileGO.transform.SetParent(transform, false);
+                tileGO.transform.localPosition = new Vector3(x - offset.x, 0f, y - offset.y);
+
             }
         }
-
-        System.Random rand = new System.Random();
-
-        int numTiles = rand.Next() % ((boardSize.x * boardSize.y) / 4);
-
-        print(numTiles);
-
-        int randX, randY;
-
-        for (int i = 0; i < numTiles; i++)
-        {
-            randX = rand.Next() % boardSize.x;
-            randY = rand.Next() % boardSize.y;
-            Tile temp = Instantiate(coverTilePrefab);
-            temp.transform.SetParent(transform, false);
-            temp.transform.localPosition = board[randX, randY].transform.localPosition;
-            Tile delete = board[randX, randY];
-
-            board[randX, randY] = temp;
-            Destroy(delete);
-            
-        }
-
-        numTiles = rand.Next() % ((boardSize.x * boardSize.y) / 4);
-        for (int i = 0; i < numTiles; i++)
-        {
-            randX = rand.Next() % boardSize.x;
-            randY = rand.Next() % boardSize.y;
-
-            while (board[randX, randY].GetType() == typeof(CoverTile))
-            {
-                randX = rand.Next() % boardSize.x;
-                randY = rand.Next() % boardSize.y;
-                print("already a cover tile");
-            }
-
-
-            Tile temp = Instantiate(concealTilePrefab);
-            temp.transform.SetParent(transform, false);
-            temp.transform.localPosition = board[randX, randY].transform.localPosition;
-            Tile delete = board[randX, randY];
-
-            board[randX, randY] = temp;
-            Destroy(delete);
-
-        }
-
     }
 
     private void OnValidate()
@@ -171,4 +178,6 @@ public class CombatArena : Map
         }
     }
 
+
+    
 }
