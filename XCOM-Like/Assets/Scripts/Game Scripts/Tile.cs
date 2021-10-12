@@ -2,13 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+public enum Neighbour
+{
+    EMPTY,
+    COVER,
+    CONCEAL
+}
+
 public class Tile : MonoBehaviour
 {
     public Material baseMaterial;
     public Material secondaryMaterial;
+    public GameObject prefab;
 
     MeshRenderer renderer = default;
-    
 
     bool walkable;
 
@@ -22,6 +30,10 @@ public class Tile : MonoBehaviour
     {
         baseMaterial = GetComponent<Material>();
         renderer = GetComponent<MeshRenderer>();
+
+        Mathf.Clamp((float)costToConcealCell, 0.0f, 1.0f);
+        Mathf.Clamp((float)costToCoverCell, 0.0f, 1.0f);
+        Mathf.Clamp((float)costToEmptyCell, 0.0f, 1.0f);
     }
 
     // Update is called once per frame
@@ -63,5 +75,26 @@ public class Tile : MonoBehaviour
     public bool isWalkable()
     {
         return walkable;
+    }
+
+    public float getCostToEmptyCell()
+    {
+        return (float)costToEmptyCell;
+    }
+
+    public float getCostToConcealCell()
+    {
+        return (float)costToConcealCell;
+    }
+
+    public float getCostToCoverTile()
+    {
+        return (float)costToCoverCell; 
+    }
+
+    public void OnValidate()
+    {
+
+        
     }
 }
