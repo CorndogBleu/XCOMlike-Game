@@ -219,9 +219,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boardSize: {x: 11, y: 11}
-  emptyTilePrefab: {fileID: 5212776533656107953, guid: cad6c9e5ad6e24fde993aaba067ea60d, type: 3}
-  coverTilePrefab: {fileID: 8956547491946380854, guid: c9e4e983e30814310a7d9775522b706d, type: 3}
-  concealTilePrefab: {fileID: -571831655442193178, guid: 6506feb992e2747059705f8122ee8d7a, type: 3}
+  emptyTile: {fileID: 5212776533656107953, guid: cad6c9e5ad6e24fde993aaba067ea60d, type: 3}
+  coverTile: {fileID: 8956547491946380854, guid: c9e4e983e30814310a7d9775522b706d, type: 3}
+  concealTile: {fileID: -571831655442193178, guid: 6506feb992e2747059705f8122ee8d7a, type: 3}
 --- !u!4 &236039073
 Transform:
   m_ObjectHideFlags: 0
