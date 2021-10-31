@@ -39,7 +39,6 @@ public class CombatArena : Map
         
     }
 
-
     public override void init(Vector2Int size)
     {
 
@@ -60,6 +59,10 @@ public class CombatArena : Map
         board = new Tile[boardSize.x, boardSize.y];
         
         Queue<GameObject> tileQueue = new Queue<GameObject>();
+
+        setupGraphPrefferedAttach();
+
+        
 
         float rnd;
 
