@@ -49,21 +49,22 @@ public class CombatArena : Map
 
         Queue<GameObject> gameObjects = new Queue<GameObject>();
 
-        for (int col = 0; col < boardSize.y; col++)
+
+        for (int row = 0; row < boardSize.y; row++)
         {
-            gameObjects.Enqueue(emptyTileGO);
+            if (row == 0 || row == boardSize.y - 1)
+            {
+                gameObjects.Enqueue(emptyTileGO);
+            }
+            else
+            {
+                //Tile tile = preferredAttachmentAlgo.get
+            }
         }
-
-        //gameObjects = convertTileQueue(preferredAttachmentAlgo.genQueue(boardSize.x  * (boardSize.y - 2)));
-        gameObjects = queueAddRange(gameObjects, convertTileQueue(preferredAttachmentAlgo.genQueue(boardSize.x * (boardSize.y - 2))));
-
         print(gameObjects.Count);
         spawnTiles(gameObjects);
 
-        for (int col = 0; col < boardSize.y; col++)
-        {
-            gameObjects.Enqueue(emptyTileGO);
-        }
+        
 
         print(preferredAttach.getSize());
     }

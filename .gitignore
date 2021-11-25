@@ -37,3 +37,9 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+
+XCOM-Like/Assets/Scripts/C_Sharp_Lib
+
+XCOM-Like/Assets/Scripts/C_Sharp_Lib.meta
+
+C_Sharp_Lib/XCOM-Like/Assets/Scripts
