@@ -12,8 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d88846aa1cdb84d74ac8fd7d1ff0b0eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseMaterial: {fileID: 2100000, guid: 1ba0f529d648947a698b74e9c14d875b, type: 2}
-  secondaryMaterial: {fileID: 2100000, guid: 405ca2151751149b6a77230d3aa56719, type: 2}
+  alternateTileSprite: {fileID: 3021082846727537771, guid: 3fc69d6af9a644362b934b4e13ab7fbd, type: 3}
+  tileBase: {fileID: 11400000, guid: 5f22ccc7bf1db47a5bf6bdcd38b44950, type: 2}
+  costToEmptyCell: 0
+  costToCoverCell: 0
+  costToConcealCell: 0
 --- !u!1001 &4256827868306969649
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -21,6 +24,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2718600196011520305, guid: cad6c9e5ad6e24fde993aaba067ea60d, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 7750409464075876796, guid: 3fc69d6af9a644362b934b4e13ab7fbd, type: 3}
     - target: {fileID: 5212776533656107950, guid: cad6c9e5ad6e24fde993aaba067ea60d, type: 3}
       propertyPath: m_Name
       value: Cover Tile

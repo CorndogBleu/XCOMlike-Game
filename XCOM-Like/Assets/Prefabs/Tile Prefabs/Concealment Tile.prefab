@@ -12,8 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0eea7abf02a094ab3af2ad14ea772863, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseMaterial: {fileID: 2100000, guid: 0817e71cc7b8845beb8706985fc7130a, type: 2}
-  secondaryMaterial: {fileID: 2100000, guid: 61bf0513d430c4bfcbb02a5d8b41019a, type: 2}
+  alternateTileSprite: {fileID: -2295014772061166724, guid: 3fc69d6af9a644362b934b4e13ab7fbd, type: 3}
+  tileBase: {fileID: 11400000, guid: 3fb4e493e089e4f4cbe66c84a2009cb3, type: 2}
+  costToEmptyCell: 0
+  costToCoverCell: 0
+  costToConcealCell: 0
 --- !u!1001 &1591418810826681576
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -21,6 +24,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2718600196011520305, guid: cad6c9e5ad6e24fde993aaba067ea60d, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 972985811948964285, guid: 3fc69d6af9a644362b934b4e13ab7fbd, type: 3}
     - target: {fileID: 5212776533656107950, guid: cad6c9e5ad6e24fde993aaba067ea60d, type: 3}
       propertyPath: m_Name
       value: Concealment Tile
