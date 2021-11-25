@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public abstract class Map : MonoBehaviour
 {
@@ -13,20 +14,30 @@ public abstract class Map : MonoBehaviour
     }
 
     protected RoomType roomType;
-
-    
-    
+    public Tilemap tileMap;
+    public List<TileBase> tileBases;
+    public Vector2Int boardSize;
 
     // Start is called before the first frame update
     void Start()
     {
         roomType = RoomType.NOT_INTIALISED;
+
+        print(GameObject.FindGameObjectsWithTag("TileMap").Length);
+
+        if (tileMap == null)
+        {
+            tileMap = GameObject.FindGameObjectWithTag("TileMap").GetComponent<Tilemap>();
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (tileMap == null)
+        {
+            tileMap = GameObject.FindGameObjectWithTag("TileMap").GetComponent<Tilemap>();
+        }
     }
 
     public RoomType getRoomType()
@@ -34,6 +45,8 @@ public abstract class Map : MonoBehaviour
         return roomType;
     }
 
-    abstract public void init(Vector2Int boardSize);
+    abstract public void init();
+    abstract protected void spawnTiles(Queue<GameObject> queue);
+
     
 }

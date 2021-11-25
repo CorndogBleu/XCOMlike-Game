@@ -2,85 +2,86 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Library.Graph;
+using Library.Algorithms;
 
 public class CombatArena : Map
 {
-    int numRows, numCols;
-    Transform attackSpawn, defSpawn;
+    protected int numRows, numCols;
+    protected Transform attackSpawn, defSpawn;
 
-    [SerializeField]
-    Vector2Int boardSize = new Vector2Int (11,11);
+    protected Tile emptyTile = default, coverTile = default, concealTile = default;
 
-    [SerializeField]
-    Tile emptyTile = default, coverTile = default, concealTile = default;
+    public GameObject emptyTileGO, coverTileGO, concealTileGO;
 
-    Tile[,] board;
+    protected Tile[,] board;
 
-    Graph<Tile> tileGraph;
-    Graph<Tile> preferredAttach;
-    
+    protected Graph<Tile> tileGraph;
+    protected Graph<Tile> preferredAttach;
 
-
-    // Start is called before the first frame update
-    void Start()
+    public override void init()
     {
+
         roomType = RoomType.COMBAT_ARENA;
         tileGraph = new Graph<Tile>();
         preferredAttach = new Graph<Tile>();
         tileGraph.allowSelfConnect = true;
         preferredAttach.allowSelfConnect = true;
 
+        emptyTile = emptyTileGO.GetComponent<Tile>();
+        coverTile = coverTileGO.GetComponent<Tile>();
+        concealTile = concealTileGO.GetComponent<Tile>();
+
+        board = new Tile[boardSize.y, boardSize.x];
+
         setupGraphPrefferedAttach();
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    public override void init(Vector2Int size)
-    {
-
-        Start();
-
-        //initBoardPreferredAttach(size);
-
-        initOld(size);
+        initBoardPreferredAttach();
     }
 
     /// <summary>
     /// Initialises board using the Preferred Attachment Algorithm
     /// </summary>
     /// <param name="size">Dimension of of the board</param>
-    private void initBoardPreferredAttach(Vector2Int size)
+    private void initBoardPreferredAttach()
     {
-        this.boardSize = size;
-        board = new Tile[boardSize.x, boardSize.y];
-        
-        Queue<GameObject> tileQueue = new Queue<GameObject>();
+        PreferredAttachment<Tile> preferredAttachmentAlgo = new PreferredAttachment<Tile>(preferredAttach);
+        preferredAttachmentAlgo.setCostModifier(0.75);
 
-        setupGraphPrefferedAttach();
+        Queue<GameObject> gameObjects = new Queue<GameObject>();
 
-        
-
-        float rnd;
-
-        Tile currTile = emptyTile;
-
-        for (int i = 0; i < boardSize.x; i++)
+        for (int col = 0; col < boardSize.y; col++)
         {
-            for (int j = 0; j < boardSize.y; j++)
-            {
-                tileQueue.Enqueue(currTile.gameObject);
-                rnd = Random.value;
-
-               
-            }
+            gameObjects.Enqueue(emptyTileGO);
         }
 
-        spawnTiles(tileQueue);
-        
+        //gameObjects = convertTileQueue(preferredAttachmentAlgo.genQueue(boardSize.x  * (boardSize.y - 2)));
+        gameObjects = queueAddRange(gameObjects, convertTileQueue(preferredAttachmentAlgo.genQueue(boardSize.x * (boardSize.y - 2))));
+
+        print(gameObjects.Count);
+        spawnTiles(gameObjects);
+
+        for (int col = 0; col < boardSize.y; col++)
+        {
+            gameObjects.Enqueue(emptyTileGO);
+        }
+
+        print(preferredAttach.getSize());
+    }
+
+    /// <summary>
+    /// Enqueues elements from <paramref name="newQueue"/> into <paramref name="sourceQueue"/>
+    /// </summary>
+    /// <param name="sourceQueue"></param>
+    /// <param name="newQueue"></param>
+    /// <returns><paramref name="sourceQueue"/> with all elements from <paramref name="newQueue"/> </returns>
+    Queue<GameObject> queueAddRange(Queue<GameObject> sourceQueue, Queue<GameObject> newQueue)
+    {
+        foreach(GameObject gameObject in newQueue)
+        {
+            sourceQueue.Enqueue(gameObject);
+        }
+
+        return sourceQueue;
     }
 
     /// <summary>
@@ -88,6 +89,12 @@ public class CombatArena : Map
     /// </summary>
     private void setupGraphPrefferedAttach()
     {
+        if (emptyTile == null || coverTile == null || concealTile == null)
+        {
+            print("Reinitialising --- One of the Tile Prefabs failed");
+            init();
+        }
+
         preferredAttach.insert(this.emptyTile);
         preferredAttach.insert(this.coverTile);
         preferredAttach.insert(this.concealTile);
@@ -105,67 +112,64 @@ public class CombatArena : Map
         preferredAttach.connectNodes(this.coverTile, this.emptyTile, 0.3);
     }
 
-    private void initOld(Vector2Int size)
-    {
-        this.boardSize = size;
-        board = new Tile[size.x, size.y];
-        Queue<GameObject> tiles = new Queue<GameObject>();
-
-        for(int y = 0; y < boardSize.y; y++)
-        {
-            for (int x = 0; x < boardSize.x; x++)
-            {
-                if (Random.value < .33)
-                {
-                    tiles.Enqueue(emptyTile.gameObject);
-                }
-                else if (Random.value < .66)
-                {
-                    tiles.Enqueue(coverTile.gameObject);
-                }
-                else
-                {
-                    tiles.Enqueue(concealTile.gameObject);
-                }
-            }
-        }
-
-        print($"{tiles.Count}");
-
-        spawnTiles(tiles);
-        
-    }
-
     /// <summary>
     /// Uses a queue of tiles to generate a board of tiles
+    /// Can be overriden in child classes thanks to "virtual"
     /// </summary>
     /// <param name="tileQueue">Queue of tiles</param>
-    void spawnTiles(Queue<GameObject> tileQueue)
+    protected override void spawnTiles(Queue<GameObject> tileQueue)
     {
-        Vector2 offset = new Vector2();
-        offset.x = 0.5f * (boardSize.x - 1);
-        offset.y = 0.5f * (boardSize.y - 1);
-
-        if (tileQueue.Count != (boardSize.x * boardSize.y))
-        {
-            throw new System.Exception("Board dimensions do not match queue size");
-        }
 
         print($"{tileQueue.Count}");
 
-        for (int y = 0; y < boardSize.y; y++)
+        for (int row = 0; row < boardSize.y; row++)
         {
-            for (int x = 0; x < boardSize.x; x++)
+            for (int col = 0; col < boardSize.x; col++)
             {
-                
-                GameObject tileGO = Instantiate(tileQueue.Dequeue());
-                Tile tile = tileGO.GetComponent<Tile>();
-                board[x, y] = tile;
-                tileGO.transform.SetParent(transform, false);
-                tileGO.transform.localPosition = new Vector3(x - offset.x, 0f, y - offset.y);
 
+                GameObject tileGO = tileQueue.Dequeue();
+                Tile tile = tileGO.GetComponent<Tile>();
+                board[row,col] = tile;
+                tileMap.SetTile(new Vector3Int(row,col,0), tile.tileBase);
             }
         }
+    }
+
+    protected Queue<GameObject> convertTileQueue(Queue<Tile> tiles)
+    {
+        Queue<GameObject> gameObjects = new Queue<GameObject>();
+        
+        foreach (Tile tile in tiles)
+        {
+            GameObject go = getPairedPrefab(tile);
+
+            gameObjects.Enqueue(go);
+        }
+        
+
+
+        return gameObjects;
+    }
+
+    /// <summary>
+    /// Graph<T> needs T to implement IComparable
+    /// This method takes <paramref name="tile"/> and returns emptyTileGO, coverTileGO ...
+    /// This method will be deprecated if Graph no longer needs to implement IComparable
+    /// </summary>
+    /// <param name="tile"></param>
+    /// <returns>The associated prefab and null if not found</returns>
+    protected GameObject getPairedPrefab(Tile tile)
+    {
+        if (tile is EmpyTile)
+            return emptyTileGO;
+        if (tile is CoverTile)
+            return coverTileGO;
+        if (tile is ConcealmentTile)
+            return concealTileGO;
+
+        print("NULL");
+
+        return null;
     }
 
     private void OnValidate()
@@ -180,7 +184,4 @@ public class CombatArena : Map
             boardSize.y = 2;
         }
     }
-
-
-    
 }

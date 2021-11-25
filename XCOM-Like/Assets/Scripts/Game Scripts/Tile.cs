@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System;
+using UnityEngine.Tilemaps;
 
 public enum Neighbour
 {
@@ -10,13 +11,16 @@ public enum Neighbour
     CONCEAL
 }
 
-public class Tile : MonoBehaviour
+public class Tile : MonoBehaviour, IComparable
 {
-    public Material baseMaterial;
-    public Material secondaryMaterial;
-    public GameObject prefab;
+    Sprite baseTileSprite;
 
-    MeshRenderer renderer = default;
+    [SerializeField]
+    Sprite alternateTileSprite;
+
+    SpriteRenderer renderer;
+
+    public TileBase tileBase;
 
     bool walkable;
 
@@ -28,22 +32,20 @@ public class Tile : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        baseMaterial = GetComponent<Material>();
-        renderer = GetComponent<MeshRenderer>();
 
         Mathf.Clamp((float)costToConcealCell, 0.0f, 1.0f);
         Mathf.Clamp((float)costToCoverCell, 0.0f, 1.0f);
         Mathf.Clamp((float)costToEmptyCell, 0.0f, 1.0f);
+
+        while (renderer == null)
+            renderer = GetComponent<SpriteRenderer>();
+
+        baseTileSprite = renderer.sprite;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (renderer == null)
-        {
-            print("null rendered");
-            renderer = GetComponent<MeshRenderer>();
-        }
     }
 
     /// <summary>
@@ -51,15 +53,7 @@ public class Tile : MonoBehaviour
     /// </summary>
     protected void OnMouseOver()
     {
-        if (renderer == null)
-        {
-            renderer = GetComponent<MeshRenderer>();
-        }
-        else
-        {
-             renderer.material = secondaryMaterial;
-        }
-        
+        renderer.sprite = alternateTileSprite;
     }
 
 
@@ -69,7 +63,7 @@ public class Tile : MonoBehaviour
     protected void OnMouseExit()
     {
         //print("Exit");
-        renderer.material = baseMaterial;
+        renderer.sprite = baseTileSprite;
     }
 
     public bool isWalkable()
@@ -95,6 +89,16 @@ public class Tile : MonoBehaviour
     public void OnValidate()
     {
 
+    }
+
+    public int CompareTo(object obj)
+    {
+        if (obj == null || !(obj is Tile))
+            return 1;
+
+        Tile otherTile = obj as Tile;
+
+        return gameObject.GetInstanceID().CompareTo(otherTile.gameObject.GetInstanceID());
         
     }
 }

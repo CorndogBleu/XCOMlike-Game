@@ -18,6 +18,8 @@ public class GameManager : MonoBehaviour
     int momentum;
     BattleSate battleSate;
 
+    public LayerMask tileLayerMask;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -30,9 +32,17 @@ public class GameManager : MonoBehaviour
         
     }
 
-    private void Awake()
+    void Awake()
     {
-        map.init(new Vector2Int(11, 11));
+        try
+        {
+            map.init();
+        }
+        catch(UnassignedReferenceException e)
+        {
+            map.tileMap = GameObject.FindGameObjectWithTag("TileMap").GetComponent<UnityEngine.Tilemaps.Tilemap>();
+            map.init();
+        }
     }
 
     public int getMomentum()
@@ -43,4 +53,5 @@ public class GameManager : MonoBehaviour
     {
         return battleSate;
     }
+
 }
